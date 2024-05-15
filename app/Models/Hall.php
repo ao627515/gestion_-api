@@ -9,4 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Hall extends Model
 {
     use HasFactory, SoftDeletes;
+
+    public function created_by(){
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

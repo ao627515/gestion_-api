@@ -45,4 +45,8 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function halls(){
+        return $this->hasMany(Hall::class, 'user_id', 'id');
+    }
 }

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Hall;
 use App\Http\Requests\StoreHallRequest;
 use App\Http\Requests\UpdateHallRequest;
+use App\Http\Resources\HallCollection;
+use App\Http\Resources\HallResource;
 
 class HallController extends Controller
 {
@@ -13,7 +15,7 @@ class HallController extends Controller
      */
     public function index()
     {
-        //
+        return new HallCollection(Hall::all());
     }
 
     /**

@@ -18,7 +18,7 @@ class HallSeeder extends Seeder
 
 
         for ($i = 0; $i < 4; $i++) {
-            Hall::factory(4)->create([
+            Hall::factory()->create([
                 'name' => "Salle ".($i+1),
                 'price' => $prices[$i]
             ]);
