@@ -7,6 +7,7 @@ use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Http\Resources\ConsumerTicketCollection;
 use App\Http\Resources\TicketCollection;
+use App\Http\Resources\TicketResource;
 use App\Http\Resources\VisitorTicketCollection;
 
 class TicketController extends Controller
@@ -34,7 +35,32 @@ class TicketController extends Controller
      */
     public function store(StoreTicketRequest $request)
     {
-        //
+        $ticket = new Ticket();
+        $ticket->type = $request->type;
+        $ticket->price = $request->price;
+        $ticket->user_id = $request->user()->id;
+        $ticket->ticket_id = $ticket->generateTicketId();
+        $ticket->save();
+
+        return response()->json([
+            'message' => 'ticket store is successful',
+            'ticket' => new TicketResource($ticket)
+        ]);
+    }
+
+    public function visitorTicketsStore(StoreTicketRequest $request){
+
+        $ticket = new Ticket();
+        $ticket->type = 'visitor';
+        $ticket->price = $request->price;
+        $ticket->user_id = $request->user()->id;
+        $ticket->ticket_id = $ticket->generateTicketId();
+        $ticket->save();
+
+        return response()->json([
+            'message' => 'ticket store is successful',
+            'ticket' => new TicketResource($ticket)
+        ]);
     }
 
     /**
