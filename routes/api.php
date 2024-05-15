@@ -9,17 +9,17 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
-Route::prefix('v1')->group(function(){
+Route::prefix('v1')->group(function () {
     Route::get('halls', [HallController::class, 'index']);
-    
-    Route::prefix('auth')->group(function(){
+
+    Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
+        Route::delete('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
     });
 });
 
-Route::fallback(function(){
+Route::fallback(function () {
     return response()->json([
         'message' => 'Page not found'
-        ], 404);
+    ], 404);
 });

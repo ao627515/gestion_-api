@@ -18,6 +18,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = $request->user();
+
             $token_name = $request->token_name;
             $token = $user->createToken(
                 $token_name, ['*'], now()->addWeek()
@@ -36,12 +37,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('api')->logout();
-
-        $request->session()->invalidate();
-
         $request->user()->currentAccessToken()->delete();
-
         return response()->json([
             'message' => 'Logged out successfully',
         ]);
