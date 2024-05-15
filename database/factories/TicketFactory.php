@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,27 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'ticket_id' => Ticket::generateStaticTicketId(),
+            'type' => $this->faker->randomElement(['visitor', 'consumer']),
+            'price' => $this->faker->randomElement([null, 1000]),
+            'user_id' => User::inRandomOrder()->where('role', 'caissier')->first()->id,
+            'created_at' => now(),
+            'updated_at' => now()
         ];
+    }
+
+    public function visitorTickets(){
+        usleep(1000);
+        return $this->state(fn (array $attributes) => [
+            'type' => 'visitor',
+            'price' => 1000
+        ]);
+    }
+    public function consumerTickets(){
+        usleep(1000);
+        return $this->state(fn (array $attributes) => [
+            'type' => 'consumer',
+            'price' => null
+        ]);
     }
 }
