@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
+use App\Http\Resources\ConsumerTicketCollection;
 use App\Http\Resources\TicketCollection;
 use App\Http\Resources\VisitorTicketCollection;
 
@@ -21,6 +22,11 @@ class TicketController extends Controller
     public function visitorTickets()
     {
         return new VisitorTicketCollection(Ticket::where('type', 'visitor')->get());
+    }
+
+    public function consumerTickets()
+    {
+        return new ConsumerTicketCollection(Ticket::where('type', 'consumer')->get());
     }
 
     /**
