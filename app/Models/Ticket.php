@@ -35,4 +35,7 @@ class Ticket extends Model
         return $this->belongsToMany(Hall::class, 'hall_ticket', 'ticket_id', 'hall_id', 'id', 'id');
     }
 
+    public function created_by(){
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }
