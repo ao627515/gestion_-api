@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('lastname')->nullable();
             $table->string('firstname')->nullable();
             $table->enum('role',['caissier', 'gerant', 'admin']);
-            $table->string('phone');
+            $table->string('phone')->unique('unique_phone_index');
             $table->string('password');
             $table->softDeletes();
             // $table->rememberToken();
