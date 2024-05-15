@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,11 @@ class HallFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->word,
+            'price' => fake()->numberBetween(1000, 10000),
+            'user_id' => User::inRandomOrder()->where('role', 'caissier')->first()->id,
+            'created_at' => now(),
+            'updated_at' => now(),
         ];
     }
 }
