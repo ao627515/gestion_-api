@@ -11,6 +11,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('halls', [HallController::class, 'index']);
         Route::get('tickets', [TicketController::class, 'index']);
+        Route::get('tickets/visitor_tickets', [TicketController::class, 'visitorTickets']);
 
     });
 

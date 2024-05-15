@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Http\Resources\TicketCollection;
+use App\Http\Resources\VisitorTicketCollection;
 
 class TicketController extends Controller
 {
@@ -17,12 +18,9 @@ class TicketController extends Controller
         return new TicketCollection(Ticket::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function visitorTickets()
     {
-        //
+        return new VisitorTicketCollection(Ticket::where('type', 'visitor')->get());
     }
 
     /**
