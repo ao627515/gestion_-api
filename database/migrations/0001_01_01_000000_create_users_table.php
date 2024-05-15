@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('role',['caissier', 'gerant', 'admin']);
             $table->string('phone');
             $table->string('password');
+            $table->softDeletes();
             // $table->rememberToken();
             $table->timestamps();
         });

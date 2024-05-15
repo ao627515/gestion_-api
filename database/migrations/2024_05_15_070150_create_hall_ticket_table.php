@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tickets', function (Blueprint $table) {
+        Schema::create('hall_ticket', function (Blueprint $table) {
             $table->id();
-            $table->string('ticket_id');
-            $table->enum('type', ['visitor', 'consumer']);
-            $table->float('price')->nullable();
-            $table->foreignId('user_id')
-                ->constrained()
+            $table->foreignId('ticket_id')
+                ->constrained(table: 'tickets', column: 'tiket_id')
                 ->cascadeOnDelete()
                 ->cascadeOnUpdate();
-            $table->softDeletes();
-            $table->softDeletes();
+            $table->foreignId('hall_id')
+                ->constrained(table: 'halls', column: 'id')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('hall_ticket');
     }
 };
