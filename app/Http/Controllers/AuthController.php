@@ -10,21 +10,23 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function login(LoginRequest $request){
-
-       $credentials = [
-        'phone' => $request->phone,
-        'password' => $request->password
-       ];
-
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('phone', 'password');
 
         if (Auth::attempt($credentials)) {
             $user = $request->user();
+            $tokenName = $request->token_name;
 
-            $token_name = $request->token_name;
-            $token = $user->createToken(
-                $token_name, ['*'], now()->addWeek()
-            )->plainTextToken;
+            $existingToken = $user->tokens()->where('name', $tokenName)->first();
+
+            if ($existingToken && $existingToken->expires_at >= now()) {
+                $token = $existingToken->plainTextToken;
+            } elseif ($existingToken) {
+                $existingToken->delete();
+            }
+
+            $token = $user->createToken($tokenName, ['*'], now()->addWeek())->plainTextToken;
 
             return response()->json([
                 'message' => 'Login Success',
@@ -37,6 +39,7 @@ class AuthController extends Controller
         ], 401);
     }
 
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -44,9 +47,10 @@ class AuthController extends Controller
             'message' => 'Logged out successfully',
         ]);
     }
-    public function user(){
+    public function user()
+    {
         return response()->json([
             'user' => new UserResource(Auth::user())
-            ]);
+        ]);
     }
 }

@@ -61,7 +61,6 @@ class TicketController extends Controller
 
     public function consumerTicketsStore(StoreTicketRequest $request)
     {
-        // dd($request);
         $ticket = new Ticket();
         $ticket->type = 'consumer';
         $ticket->user_id = $request->user()->id;
