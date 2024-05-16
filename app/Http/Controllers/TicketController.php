@@ -37,10 +37,12 @@ class TicketController extends Controller
     public function store(StoreTicketRequest $request)
     {
         if ($request->price == null) {
-            $this->consumerTicketsStore($request);
+            $reponse = $this->consumerTicketsStore($request);
         } elseif ($request->ticket_halls == null) {
-            $this->visitorTicketsStore($request);
+            $reponse = $this->visitorTicketsStore($request);
         }
+
+        return $reponse;
     }
 
     public function visitorTicketsStore(StoreTicketRequest $request)
@@ -54,7 +56,7 @@ class TicketController extends Controller
         $ticket->save();
 
         return response()->json([
-            'message' => 'ticket store is successful',
+            'message' => 'visitor ticket store is successful',
             'ticket' => new TicketResource($ticket)
         ]);
     }
@@ -69,7 +71,7 @@ class TicketController extends Controller
 
         $ticket->halls()->attach($request->ticket_halls);
         return response()->json([
-            'message' => 'ticket store is successful',
+            'message' => 'consumer ticket store is successful',
             'ticket' => new ConsumerTicketResource($ticket)
         ]);
     }
