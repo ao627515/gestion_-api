@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\LoginRequest;
 use App\Http\Resources\UserResource;
 use Exception;
 use Illuminate\Http\Request;
@@ -9,12 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function login(Request $request){
+    public function login(LoginRequest $request){
 
-       $credentials = $request->validate([
-            'phone' => ['required'],
-            'password' => ['required'],
-        ]);
+       $credentials = [
+        'phone' => $request->phone,
+        'password' => $request->password
+       ];
 
 
         if (Auth::attempt($credentials)) {
