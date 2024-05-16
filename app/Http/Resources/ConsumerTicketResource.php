@@ -21,6 +21,7 @@ class ConsumerTicketResource extends JsonResource
             'created_by' => new UserResource($this->created_by),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'ticket_halls' => new HallCollection($this->halls)
         ];
     }
 }

@@ -13,6 +13,7 @@ Route::prefix('v1')->group(function () {
         Route::get('tickets', [TicketController::class, 'index']);
         Route::post('tickets', [TicketController::class, 'store']);
         Route::post('tickets/visitor', [TicketController::class, 'visitorTicketsStore']);
+        Route::post('tickets/consumer', [TicketController::class, 'consumerTicketsStore']);
         Route::get('tickets/visitor_tickets', [TicketController::class, 'visitorTickets']);
         Route::get('tickets/consumer_tickets', [TicketController::class, 'consumerTickets']);
 

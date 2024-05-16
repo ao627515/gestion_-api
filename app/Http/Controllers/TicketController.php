@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use App\Http\Requests\StoreTicketRequest;
 use App\Http\Requests\UpdateTicketRequest;
 use App\Http\Resources\ConsumerTicketCollection;
+use App\Http\Resources\ConsumerTicketResource;
 use App\Http\Resources\TicketCollection;
 use App\Http\Resources\TicketResource;
 use App\Http\Resources\VisitorTicketCollection;
@@ -35,20 +36,15 @@ class TicketController extends Controller
      */
     public function store(StoreTicketRequest $request)
     {
-        $ticket = new Ticket();
-        $ticket->type = $request->type;
-        $ticket->price = $request->price;
-        $ticket->user_id = $request->user()->id;
-        $ticket->ticket_id = $ticket->generateTicketId();
-        $ticket->save();
-
-        return response()->json([
-            'message' => 'ticket store is successful',
-            'ticket' => new TicketResource($ticket)
-        ]);
+        if ($request->price == null) {
+            $this->consumerTicketsStore($request);
+        } elseif ($request->ticket_halls == null) {
+            $this->visitorTicketsStore($request);
+        }
     }
 
-    public function visitorTicketsStore(StoreTicketRequest $request){
+    public function visitorTicketsStore(StoreTicketRequest $request)
+    {
 
         $ticket = new Ticket();
         $ticket->type = 'visitor';
@@ -60,6 +56,22 @@ class TicketController extends Controller
         return response()->json([
             'message' => 'ticket store is successful',
             'ticket' => new TicketResource($ticket)
+        ]);
+    }
+
+    public function consumerTicketsStore(StoreTicketRequest $request)
+    {
+        // dd($request);
+        $ticket = new Ticket();
+        $ticket->type = 'consumer';
+        $ticket->user_id = $request->user()->id;
+        $ticket->ticket_id = $ticket->generateTicketId();
+        $ticket->save();
+
+        $ticket->halls()->attach($request->ticket_halls);
+        return response()->json([
+            'message' => 'ticket store is successful',
+            'ticket' => new ConsumerTicketResource($ticket)
         ]);
     }
 
