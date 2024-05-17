@@ -63,17 +63,30 @@ class TicketController extends Controller
 
     public function consumerTicketsStore(StoreTicketRequest $request)
     {
-        $ticket = new Ticket();
-        $ticket->type = 'consumer';
-        $ticket->user_id = $request->user()->id;
-        $ticket->ticket_id = $ticket->generateTicketId();
-        $ticket->save();
+        /**
+         * @var array<array<int>> $ticket_halls
+         */
+        $ticket_halls = $request->ticket_halls;
 
-        $ticket->halls()->attach($request->ticket_halls);
+        /**
+         * @var array<Ticket>
+         */
+        $tickets = [];
+
+        foreach($ticket_halls as $hallsId){
+            $ticket = new Ticket();
+            $ticket->type = 'consumer';
+            $ticket->user_id = $request->user()->id;
+            $ticket->ticket_id = $ticket->generateTicketId();
+            $ticket->save();
+
+            $ticket->halls()->attach($hallsId);
+            $tickets[] = $ticket;
+        }
 
         return response()->json([
             'message' => 'consumer ticket store is successful',
-            'ticket' => new ConsumerTicketResource($ticket)
+            'tickets' => new ConsumerTicketCollection($tickets)
         ]);
     }
 
