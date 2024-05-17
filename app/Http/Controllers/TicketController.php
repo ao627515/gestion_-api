@@ -70,6 +70,7 @@ class TicketController extends Controller
         $ticket->save();
 
         $ticket->halls()->attach($request->ticket_halls);
+
         return response()->json([
             'message' => 'consumer ticket store is successful',
             'ticket' => new ConsumerTicketResource($ticket)

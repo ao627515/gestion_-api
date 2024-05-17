@@ -39,7 +39,7 @@ class HallController extends Controller
      */
     public function show(Hall $hall)
     {
-        //
+        return new HallResource($hall);
     }
 
     /**

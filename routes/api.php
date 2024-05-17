@@ -10,6 +10,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('halls', [HallController::class, 'index']);
+        Route::get('halls/{hall}', [HallController::class, 'show']);
         Route::get('tickets', [TicketController::class, 'index']);
         Route::post('tickets', [TicketController::class, 'store']);
         Route::post('tickets/visitor', [TicketController::class, 'visitorTicketsStore']);
