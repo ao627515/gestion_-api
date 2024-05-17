@@ -17,27 +17,23 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = $request->user();
             $tokenName = $request->token_name;
-
-            $existingToken = $user->tokens()->where('name', $tokenName)->first();
-
-            if ($existingToken && $existingToken->expires_at >= now()) {
-                $token = $existingToken->plainTextToken;
-            } elseif ($existingToken) {
-                $existingToken->delete();
-            }
-
-            $token = $user->createToken($tokenName, ['*'], now()->addWeek())->plainTextToken;
+            $expires_at = now()->addDay();
+            $token = $user->createToken($tokenName, ['*'], $expires_at)->plainTextToken;
 
             return response()->json([
                 'message' => 'Login Success',
-                'token' => $token,
+                'token' => [
+                    'value' => $token,
+                    'expires_at' => $expires_at
+                ],
             ]);
         }
 
         return response()->json([
-            'message' => 'Login failure',
+            'message' => 'Login failure - Credential incorrect',
         ], 401);
     }
+
 
 
     public function logout(Request $request)
