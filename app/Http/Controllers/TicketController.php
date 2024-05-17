@@ -47,17 +47,23 @@ class TicketController extends Controller
 
     public function visitorTicketsStore(StoreTicketRequest $request)
     {
-
-        $ticket = new Ticket();
-        $ticket->type = 'visitor';
-        $ticket->price = $request->price;
-        $ticket->user_id = $request->user()->id;
-        $ticket->ticket_id = $ticket->generateTicketId();
-        $ticket->save();
+        /**
+         * @var array<Ticket>
+         */
+        $tickets = [];
+        for ($i = 0; $i < $request->quantity; $i++) {
+            $ticket = new Ticket();
+            $ticket->type = 'visitor';
+            $ticket->price = $request->price;
+            $ticket->user_id = $request->user()->id;
+            $ticket->ticket_id = $ticket->generateTicketId();
+            $ticket->save();
+            $tickets[] = $ticket;
+        }
 
         return response()->json([
             'message' => 'visitor ticket store is successful',
-            'ticket' => new TicketResource($ticket)
+            'tickets' => new VisitorTicketCollection($tickets)
         ]);
     }
 
@@ -73,7 +79,7 @@ class TicketController extends Controller
          */
         $tickets = [];
 
-        foreach($ticket_halls as $hallsId){
+        foreach ($ticket_halls as $hallsId) {
             $ticket = new Ticket();
             $ticket->type = 'consumer';
             $ticket->user_id = $request->user()->id;
