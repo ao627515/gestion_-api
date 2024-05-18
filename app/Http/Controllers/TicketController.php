@@ -76,7 +76,7 @@ class TicketController extends Controller
         switch (request('cheat')) {
             case 'dashboard_repport':
                 $report = Ticket::selectRaw("
-                DATE_FORMAT(tickets.created_at, '%Y-%m-%dT%H:%00:%00.000Z') as hour,
+                DATE_FORMAT(tickets.created_at, '%Y-%m-%dT%H:%i:%s.000Z') as hour,
                 COUNT(*) as sales,
                 SUM(CASE WHEN tickets.type = 'visitor' THEN 0 ELSE COALESCE(halls.price, 0) END) as income,
                 SUM(CASE WHEN tickets.type = 'consumer' THEN 1 ELSE 0 END) as consumer_sales,
