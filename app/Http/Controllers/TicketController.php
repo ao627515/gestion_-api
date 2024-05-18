@@ -3,22 +3,137 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
-use App\Http\Requests\StoreTicketRequest;
-use App\Http\Requests\UpdateTicketRequest;
-use App\Http\Resources\ConsumerTicketCollection;
-use App\Http\Resources\ConsumerTicketResource;
-use App\Http\Resources\TicketCollection;
+use Illuminate\Http\Request;
 use App\Http\Resources\TicketResource;
+use App\Http\Resources\TicketCollection;
+use App\Http\Requests\StoreTicketRequest;
+use Illuminate\Database\Eloquent\Builder;
+use App\Http\Requests\UpdateTicketRequest;
+use App\Http\Resources\ConsumerTicketResource;
 use App\Http\Resources\VisitorTicketCollection;
+use App\Http\Resources\ConsumerTicketCollection;
+
+use function PHPSTORM_META\type;
 
 class TicketController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return new TicketCollection(Ticket::all());
+        // init var
+        $query = Ticket::query();
+        $reponse = null;
+        $type = null;
+        $order = 'desc';
+        $orderBy = 'created_at';
+
+        if ($request->filled('type')) {
+            $type = $request->type;
+            $query->where('type', $type);
+        }
+
+        if ($request->filled('order')) {
+            $order = $request->order;
+        }
+
+        if ($request->filled('orderBy')) {
+            $orderBy = $request->orderBy;
+        }
+
+        if ($request->filled('filter')) {
+            $this->filter($query);
+        }
+
+        if ($request->filled('limit')) {
+            $query->limit(request('limit'));
+        }
+
+        $query->orderBy($orderBy, $order);
+
+        if ($request->filled('only')) {
+            $reponse = $this->only($query, $type);
+        } else {
+            $reponse = $this->collections($type, $query);
+        }
+        return $reponse;
+    }
+
+    private function collections(string|null $type, Builder $query)
+    {
+        $reponse = null;
+        switch ($type) {
+            case 'visitor':
+                $reponse =  new VisitorTicketCollection($query->get());
+                break;
+            case 'consumer':
+                $reponse =  new ConsumerTicketCollection($query->get());
+                break;
+            default:
+                $reponse = new TicketCollection($query->get());
+                break;
+        }
+
+        return $reponse;
+    }
+
+    private function only(Builder $query, string|null $type)
+    {
+        $reponse = null;
+
+        switch (request('only')) {
+            case 'count':
+                $reponse = response()->json([
+                    'count' => $query->get()->count()
+                ]);
+                break;
+            case 'income':
+                $visitorIncome = 0;
+                $consumerIncome = 0;
+                foreach ($query->get() as $item) {
+                    if ($type === 'visitor') {
+                        $visitorIncome += $item->price;
+                    } elseif ($type === 'consumer') {
+                        $consumerIncome += $item->price ?? $item->halls->sum('price');
+                    } else {
+                        $visitorIncome += $item->price;
+                        $consumerIncome += $item->price ?? $item->halls->sum('price');
+                    }
+                }
+
+                $reponse = response()->json([
+                    'income' => $visitorIncome + $consumerIncome
+                ]);
+                break;
+            default:
+                $reponse = $query;
+                break;
+        }
+
+        return $reponse;
+    }
+
+    private function filter(Builder $query)
+    {
+        $reponse = null;
+
+        switch (request('filter')) {
+            case 'day':
+                $reponse = $query->whereDate('created_at', now());
+                break;
+            case 'month':
+                $reponse = $query->whereMonth('created_at', now()->month);
+                break;
+            case 'year':
+                $reponse = $query->whereYear('created_at', now()->year);
+                break;
+            default:
+                $reponse = $query;
+                break;
+        }
+
+        return $reponse;
     }
 
     public function visitorTickets()
