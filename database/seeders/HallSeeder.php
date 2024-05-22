@@ -13,15 +13,24 @@ class HallSeeder extends Seeder
      */
     public function run(): void
     {
-        /** @var int[] $prices */
-        $prices = [1000, 2500, 5000, 7500];
+        Hall::factory()->create([
+            'name' => "Piscine Adulte",
+            'price' => 3000
+        ]);
 
+        Hall::factory()->create([
+            'name' => "Piscine A Vague ",
+            'price' => 3000
+        ]);
 
-        for ($i = 0; $i < 4; $i++) {
-            Hall::factory()->create([
-                'name' => "Salle ".($i+1),
-                'price' => $prices[$i]
-            ]);
-        }
+        Hall::factory()->create([
+            'name' => "Piscine Enfant",
+            'price' => 3000
+        ]);
+
+        Hall::factory()->create([
+            'name' => "Piscine G-Toboguant",
+            'price' => 3000
+        ]);
     }
 }

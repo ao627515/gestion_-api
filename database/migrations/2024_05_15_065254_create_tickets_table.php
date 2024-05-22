@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->string('ticket_id');
+            $table->float('total')->default(0);
+            $table->integer('number')->default(0);
             $table->enum('type', ['visitor', 'consumer']);
             $table->float('price')->nullable();
             $table->foreignId('user_id')

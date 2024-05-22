@@ -231,7 +231,9 @@ class TicketController extends Controller
             $ticket->type = 'visitor';
             $ticket->price = $request->price;
             $ticket->user_id = $request->user()->id;
-            $ticket->ticket_id = $ticket->generateTicketId();
+            $ticket->ticket_id = Ticket::_generateTicketId();
+            $ticket->total = $request->total;
+            $ticket->number = Ticket::ticketsCount('visitor', now()->toDateString()) + 1;
             $ticket->save();
             $tickets[] = $ticket;
         }
@@ -260,7 +262,7 @@ class TicketController extends Controller
             $ticket->user_id = $request->user()->id;
             $ticket->ticket_id = $ticket->generateTicketId();
             $ticket->save();
-
+            $ticket->number = Ticket::ticketsCount('visitor', now()->toDateString());
             $ticket->halls()->attach($hallsId);
             $tickets[] = $ticket;
         }

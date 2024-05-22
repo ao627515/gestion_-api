@@ -15,12 +15,22 @@ class TicketSeeder extends Seeder
     public function run(): void
     {
         for ($i = 0; $i < 10; $i++) {
+            // Générer une date aléatoire dans le passé pour created_at
+            $createdAt = now()->addHour(random_int(-24, -1));
+
+            // Compter le nombre de tickets de type 'visitor' créés à cette date
+            $visitorCount = Ticket::ticketsCount('visitor', $createdAt->toDateString());
+
+            // Créer le ticket avec le numéro incrémenté
             Ticket::factory()
                 ->visitorTickets()
                 ->create([
-                    'created_at' => now()->addHour(random_int(-24, -1))
+                    'created_at' => $createdAt,
+                    'total' => fn ($attributes) => $attributes['price'],
+                    'number' => $visitorCount + 1
                 ]);
         }
+
 
         for ($i = 0; $i < 10; $i++) {
             Ticket::factory()
@@ -35,7 +45,7 @@ class TicketSeeder extends Seeder
                 })
                 ->create(
                     [
-                        'created_at' => now()->addHour(random_int(-24, -1))
+                        'created_at' => now()->addHour(random_int(-24, -1)),
                     ]
                 );
         }

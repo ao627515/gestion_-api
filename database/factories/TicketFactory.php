@@ -19,23 +19,27 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         return [
-            'ticket_id' => Ticket::generateStaticTicketId(),
+            'ticket_id' => Ticket::_generateTicketId(),
             'type' => $this->faker->randomElement(['visitor', 'consumer']),
             'price' => $this->faker->randomElement([null, 1000]),
             'user_id' => User::inRandomOrder()->where('role', 'caissier')->first()->id,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
+            'total' => 0,
+            'number' => 0
         ];
     }
 
-    public function visitorTickets(){
+    public function visitorTickets()
+    {
         usleep(1000);
         return $this->state(fn (array $attributes) => [
             'type' => 'visitor',
             'price' => 1000
         ]);
     }
-    public function consumerTickets(){
+    public function consumerTickets()
+    {
         usleep(1000);
         return $this->state(fn (array $attributes) => [
             'type' => 'consumer',
