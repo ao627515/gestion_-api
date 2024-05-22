@@ -14,10 +14,9 @@ class TicketSeeder extends Seeder
      */
     public function run(): void
     {
+        // Générer une date aléatoire dans le passé pour created_at
+        $createdAt = now()->addHour(random_int(-24, -1));
         for ($i = 0; $i < 10; $i++) {
-            // Générer une date aléatoire dans le passé pour created_at
-            $createdAt = now()->addHour(random_int(-24, -1));
-
             // Compter le nombre de tickets de type 'visitor' créés à cette date
             $visitorCount = Ticket::ticketsCount('visitor', $createdAt->toDateString());
 
@@ -33,21 +32,39 @@ class TicketSeeder extends Seeder
 
 
         for ($i = 0; $i < 10; $i++) {
+            $consumerCount = Ticket::ticketsCount('consumer', $createdAt->toDateString());
             Ticket::factory()
                 ->consumerTickets()
                 ->afterCreating(function (Ticket $ticket) {
                     $numberOfHalls = Hall::count();
                     $numberOfTickets = rand(1, $numberOfHalls);
                     $halls = Hall::inRandomOrder()->take($numberOfTickets)->get();
+
                     foreach ($halls as $hall) {
                         $ticket->halls()->attach($hall->id);
                     }
+
+                    $total = $halls->sum('price');
+                    switch ($halls->count()) {
+                        case 2:
+                            $total -= 1000;
+                            break;
+                        case 3:
+                            $total -= 1500;
+                            break;
+                        case 4:
+                            $total -= 2000;
+                            break;
+                    }
+                    $ticket->total = $total;
                 })
-                ->create(
-                    [
-                        'created_at' => now()->addHour(random_int(-24, -1)),
-                    ]
-                );
+                ->create([
+                    'created_at' => now()->addHour(random_int(-24, -1)),
+                    'number' => $consumerCount + 1,
+                ]);
         }
+
     }
+
+
 }

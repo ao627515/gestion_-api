@@ -27,11 +27,12 @@ class TicketResource extends JsonResource
             'ticket_id' => $this->ticket_id,
             'type' => $this->type,
             'price' => $this->price,
-            'ticket_halls' => $halls,
+            'halls' => $halls,
             'created_by' => new UserResource($this->created_by),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'total' => $this->total
+            'total' => $this->total,
+            'number' => $this->number
         ];
     }
 }

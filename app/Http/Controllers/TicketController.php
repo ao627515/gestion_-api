@@ -246,24 +246,24 @@ class TicketController extends Controller
 
     public function consumerTicketsStore(StoreTicketRequest $request)
     {
-        /**
-         * @var array<array<int>> $ticket_halls
-         */
-        $ticket_halls = $request->ticket_halls;
+
+
+        $consumerTickets = $request->consumerTickets;
 
         /**
          * @var array<Ticket>
          */
         $tickets = [];
 
-        foreach ($ticket_halls as $hallsId) {
+        foreach ($consumerTickets as $consumerTicket) {
             $ticket = new Ticket();
             $ticket->type = 'consumer';
             $ticket->user_id = $request->user()->id;
-            $ticket->ticket_id = $ticket->generateTicketId();
+            $ticket->ticket_id = Ticket::_generateTicketId();
             $ticket->save();
-            $ticket->number = Ticket::ticketsCount('visitor', now()->toDateString());
-            $ticket->halls()->attach($hallsId);
+            $ticket->number = Ticket::ticketsCount('consumer', now()->toDateString());
+            $ticket->halls()->attach($consumerTicket['halls']);
+            $ticket->total = $consumerTicket['total'];
             $tickets[] = $ticket;
         }
 
