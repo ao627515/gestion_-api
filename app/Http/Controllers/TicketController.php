@@ -72,11 +72,20 @@ class TicketController extends Controller
 
     public function cheat()
     {
+        // dd(request('cheat'));
+
         $response = null;
         switch (request('cheat')) {
-            case 'dashboard_repport':
+            case 'dashboard_report':
+                if (request()->filled('filter')) {
+                    // si request('filter') = day recupere les donnees par heure d'aujourd'hui
+                    // si request('filter') = week recupere les donnees par jour de cette semaine
+                    // si request('filter') = month recupere les donnees par jours de ce mois
+                    // si request('filter') = year recupere les donnees par mois de cette annee
+                    // si request('filter') = full_year recupere les donnees par annee
+                }
                 $report = Ticket::selectRaw("
-                DATE_FORMAT(tickets.created_at, '%Y-%m-%dT%H:%i:%s.000Z') as hour,
+                {$this->selectPeriod()} as period,
                 COUNT(*) as sales,
                 SUM(CASE WHEN tickets.type = 'visitor' THEN 0 ELSE COALESCE(halls.price, 0) END) as income,
                 SUM(CASE WHEN tickets.type = 'consumer' THEN 1 ELSE 0 END) as consumer_sales,
@@ -87,12 +96,12 @@ class TicketController extends Controller
                     ->when(request()->filled('filter'), function ($q) {
                         return $this->filter($q);
                     })
-                    ->groupBy('hour')
-                    ->orderBy('hour', 'ASC')
+                    ->groupBy('period')
+                    ->orderBy('period', 'ASC')
                     ->get();
 
                 $response = response()->json([
-                    'hours' => $report->pluck('hour')->toArray(),
+                    'periods' => $report->pluck('period')->toArray(),
                     'sales' => $report->pluck('sales')->toArray(),
                     'income' => $report->pluck('income')->toArray(),
                     'consumer_sales' => array_map('intval', $report->pluck('consumer_sales')->toArray()),
@@ -108,6 +117,56 @@ class TicketController extends Controller
 
         return $response;
     }
+
+    private function filter(Builder $query)
+    {
+        $response = null;
+
+        switch (request('filter')) {
+            case 'day':
+                $response = $query->whereDate('tickets.created_at', now());
+                break;
+            case 'week':
+                $response = $query->whereBetween('tickets.created_at', [now()->startOfWeek(), now()->endOfWeek()]);
+                break;
+            case 'month':
+                $response = $query->whereMonth('tickets.created_at', now()->month)
+                    ->whereYear('tickets.created_at', now()->year);
+                break;
+            case 'year':
+                $response = $query->whereYear('tickets.created_at', now()->year);
+                break;
+            case 'full_year':
+                $response = $query;
+                break;
+            default:
+                $response = $query;
+                break;
+        }
+
+        return $response;
+    }
+
+    private function selectPeriod()
+    {
+        switch (request('filter')) {
+            case 'day':
+                return "DATE_FORMAT(tickets.created_at, '%Y-%m-%dT%H:%i:%s.000Z')";
+            case 'week':
+                return "DATE_FORMAT(tickets.created_at, '%Y-%m-%d')";
+            case 'month':
+                return "DATE_FORMAT(tickets.created_at, '%Y-%m-%d')";
+            case 'full_month':
+                return "DATE_FORMAT(tickets.created_at, '%Y-%m')";
+            case 'year':
+                return "DATE_FORMAT(tickets.created_at, '%Y-%m')";
+            case 'full_year':
+                return "DATE_FORMAT(tickets.created_at, '%Y')";
+            default:
+                return "DATE_FORMAT(tickets.created_at, '%Y-%m-%dT%H:%i:%s.000Z')";
+        }
+    }
+
 
 
     private function applyGroupBy(Builder $query, string $groupBy)
@@ -148,45 +207,18 @@ class TicketController extends Controller
                 ]);
                 break;
             case 'income':
-                $visitorIncome = 0;
-                $consumerIncome = 0;
+                // $visitorIncome = 0;
+                // $consumerIncome = 0;
+                $income = 0;
                 foreach ($query->get() as $item) {
-                    if ($type === 'visitor') {
-                        $visitorIncome += $item->price;
-                    } elseif ($type === 'consumer') {
-                        $consumerIncome += $item->price ?? $item->halls->sum('price');
-                    } else {
-                        $visitorIncome += $item->price;
-                        $consumerIncome += $item->price ?? $item->halls->sum('price');
-                    }
+                    $income += $item->total;
                 }
 
                 $reponse = response()->json([
-                    'income' => $visitorIncome + $consumerIncome
+                    // 'income' => $query->get()->sum('total')
+                    // 'income' => $visitorIncome + $consumerIncome
+                    'income' => $income
                 ]);
-                break;
-            default:
-                $reponse = $query;
-                break;
-        }
-
-        return $reponse;
-    }
-
-
-    private function filter(Builder $query)
-    {
-        $reponse = null;
-
-        switch (request('filter')) {
-            case 'day':
-                $reponse = $query->whereDate('tickets.created_at', now());
-                break;
-            case 'month':
-                $reponse = $query->whereMonth('tickets.created_at', now()->month);
-                break;
-            case 'year':
-                $reponse = $query->whereYear('tickets.created_at', now()->year);
                 break;
             default:
                 $reponse = $query;
@@ -247,7 +279,6 @@ class TicketController extends Controller
     public function consumerTicketsStore(StoreTicketRequest $request)
     {
 
-
         $consumerTickets = $request->consumerTickets;
 
         /**
@@ -260,10 +291,10 @@ class TicketController extends Controller
             $ticket->type = 'consumer';
             $ticket->user_id = $request->user()->id;
             $ticket->ticket_id = Ticket::_generateTicketId();
-            $ticket->save();
             $ticket->number = Ticket::ticketsCount('consumer', now()->toDateString());
-            $ticket->halls()->attach($consumerTicket['halls']);
             $ticket->total = $consumerTicket['total'];
+            $ticket->save();
+            $ticket->halls()->attach($consumerTicket['halls']);
             $tickets[] = $ticket;
         }
 
