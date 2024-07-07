@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserController;
 
 Route::prefix('v1')->group(function () {
 
@@ -19,6 +20,7 @@ Route::prefix('v1')->group(function () {
         Route::get('tickets/consumer_tickets', [TicketController::class, 'consumerTickets']);
 
     });
+    Route::resource('employer', UserController::class);
 
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);
@@ -28,7 +30,6 @@ Route::prefix('v1')->group(function () {
         });
     });
 });
-
 Route::fallback(function () {
     return response()->json([
         'message' => 'Page not found'
