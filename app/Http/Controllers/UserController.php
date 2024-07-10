@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,18 +38,20 @@ class UserController extends Controller
         // Générer un mot de passe si non fourni
         $validated['password'] = isset($validated['password']) ? Hash::make($validated['password']) : Hash::make('password');
 
+        $validated['registration_number'] = uniqid();
+
         // Créer l'utilisateur avec les données validées
         try {
             $user = User::create($validated);
 
             return response()->json([
                 'message' => 'Utilisateur créé avec succès.',
-                'data' => $user
+                'data' => new UserResource($user)
             ], 201); // 201 Created
         } catch (\Exception $e) {
             // Gestion des erreurs de création
             return response()->json([
-                'message' => 'Erreur lors de la création de l\'utilisateur.',
+                'message' => 'Erreur lors de la création de l\'utilisateur. Veuillez réessayer plus tard.',
                 'error' => $e->getMessage()
             ], 500); // 500 Internal Server Error
         }
@@ -65,7 +68,10 @@ class UserController extends Controller
                 'message' => 'Utilisateur non trouvé'
             ], 404);
         }
-        return response()->json($user, 200);
+        return response()->json([
+            'message' => 'Utilisateur trouve.',
+            'data' => new UserResource($user)
+        ], 200);
     }
 
     /**

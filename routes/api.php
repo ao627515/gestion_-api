@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HallController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserRoleController;
 
 Route::prefix('v1')->group(function () {
 
@@ -18,9 +19,10 @@ Route::prefix('v1')->group(function () {
         Route::post('tickets/consumer', [TicketController::class, 'consumerTicketsStore']);
         Route::get('tickets/visitor_tickets', [TicketController::class, 'visitorTickets']);
         Route::get('tickets/consumer_tickets', [TicketController::class, 'consumerTickets']);
+        Route::resource('user_roles', UserRoleController::class);
 
     });
-    Route::resource('employer', UserController::class);
+    Route::resource('users', UserController::class);
 
     Route::prefix('auth')->group(function () {
         Route::post('login', [AuthController::class, 'login']);

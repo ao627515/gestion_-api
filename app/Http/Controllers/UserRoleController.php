@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\UserRole;
 use App\Http\Requests\StoreUserRoleRequest;
 use App\Http\Requests\UpdateUserRoleRequest;
+use App\Http\Resources\UserRoleResource;
 
 class UserRoleController extends Controller
 {
@@ -13,8 +14,20 @@ class UserRoleController extends Controller
      */
     public function index()
     {
-        //
+        try {
+            $userRoles = UserRole::all();
+            return response()->json([
+                'message' => 'Rôles des utilisateurs récupérés avec succès.',
+                'data' => UserRoleResource::collection($userRoles),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Une erreur est survenue lors de la récupération des rôles des utilisateurs.',
+                'error' => $th->getMessage(),
+            ], 500);
+        }
     }
+
 
     /**
      * Show the form for creating a new resource.
