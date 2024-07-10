@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -27,29 +29,29 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'lastname' => 'required|string',
-            'firstname' => 'required|string',
-            'role' => 'required|in:caissier,gerant,admin',
-            'phone' => 'required|string|unique:users,phone',
-            'password' => 'nullable|string',
-        ]);
+        // Valider les données de la demande
+        $validated = $request->validated();
 
-        // Si le mot de passe n'est pas fourni, vous pouvez en générer un par défaut.
-        if (empty($validated['password'])) {
-            $validated['password'] = Hash::make('password');
-        } else {
-            $validated['password'] = Hash::make($validated['password']);
+        // Générer un mot de passe si non fourni
+        $validated['password'] = isset($validated['password']) ? Hash::make($validated['password']) : Hash::make('password');
+
+        // Créer l'utilisateur avec les données validées
+        try {
+            $user = User::create($validated);
+
+            return response()->json([
+                'message' => 'Utilisateur créé avec succès.',
+                'data' => $user
+            ], 201); // 201 Created
+        } catch (\Exception $e) {
+            // Gestion des erreurs de création
+            return response()->json([
+                'message' => 'Erreur lors de la création de l\'utilisateur.',
+                'error' => $e->getMessage()
+            ], 500); // 500 Internal Server Error
         }
-
-        $user = User::create($validated);
-
-        return response()->json([
-            'message' => 'Utilisateur créé avec succès',
-            'user' => $user
-        ], 201);
     }
 
     /**

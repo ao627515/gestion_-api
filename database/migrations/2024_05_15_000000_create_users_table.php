@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('lastname')->nullable();
-            $table->string('firstname')->nullable();
+            $table->string('lastname');
+            $table->string('firstname');
             $table->string('registration_number')->unique();
             $table->string('ref_cinb')->unique();
             $table->foreignId('role_id')
@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('password');
             $table->date('birthday');
             $table->softDeletes();
-            // $table->rememberToken();
             $table->timestamps();
         });
 
