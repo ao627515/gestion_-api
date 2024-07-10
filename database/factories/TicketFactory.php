@@ -22,12 +22,15 @@ class TicketFactory extends Factory
             'ticket_id' => Ticket::_generateTicketId(),
             'type' => $this->faker->randomElement(['visitor', 'consumer']),
             'price' => $this->faker->randomElement([null, 1000]),
-            'user_id' => User::inRandomOrder()->where('role', 'caissier')->first()->id,
+            'user_id' => User::whereHas('role', function($query) {
+                $query->where('libelle', 'cashier');
+            })->inRandomOrder()->first()->id,
             'created_at' => now(),
             'updated_at' => now(),
             'total' => 0,
             'number' => 0
         ];
+
     }
 
     public function visitorTickets()

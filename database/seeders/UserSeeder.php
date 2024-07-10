@@ -2,27 +2,30 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * @return void
      */
-    public function run(): void
+    public function run()
     {
-        User::factory()->create([
-            'name' => 'caissier 1',
-            'phone' => '12345678',
-            'role' => 'caissier',
+        // Créer des utilisateurs avec des rôles spécifiques
+        User::factory()->admin()->create([
+            'phone' => '0000'
+        ]);
+        User::factory()->cashier()->create([
+            'phone' => '1111'
+        ]);
+        User::factory()->chief_accountant()->create([
+            'phone' => '2222'
         ]);
 
-        User::factory()->create([
-            'name' => 'Gerant 1',
-            'phone' => '87654321',
-            'role' => 'gerant',
-        ]);
+        // Créer des utilisateurs supplémentaires aléatoires
+        User::factory(50)->create();
     }
 }

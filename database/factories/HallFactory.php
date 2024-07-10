@@ -20,7 +20,9 @@ class HallFactory extends Factory
         return [
             'name' => fake()->word,
             'price' => fake()->numberBetween(1000, 10000),
-            'user_id' => User::inRandomOrder()->where('role', 'gerant')->first()->id,
+            'user_id' => User::whereHas('role', function ($query) {
+                $query->where('libelle', 'administrator');
+            })->inRandomOrder()->first()->id,
             'created_at' => now(),
             'updated_at' => now(),
         ];

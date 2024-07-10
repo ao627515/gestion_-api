@@ -18,13 +18,10 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'name',
-        'lastname',
-        'firstname',
-        'role',
-        'phone',
-        'password'
+    protected $guarded = [
+        'id',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -50,7 +47,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function halls(){
+    public function halls()
+    {
         return $this->hasMany(Hall::class, 'user_id', 'id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(UserRole::class, 'role_id', 'id');
     }
 }

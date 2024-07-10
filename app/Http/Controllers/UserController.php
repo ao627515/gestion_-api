@@ -30,7 +30,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
             'lastname' => 'required|string',
             'firstname' => 'required|string',
             'role' => 'required|in:caissier,gerant,admin',
