@@ -16,7 +16,10 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('lastname')->nullable();
             $table->string('firstname')->nullable();
-            $table->enum('role',['caissier', 'gerant', 'admin']);
+            $table->foreignId('role_id')
+                ->constrained('user_roles')
+                ->cascadeOnDelete()
+                ->cascadeOnUpdate();;
             $table->string('phone')->unique('unique_phone_index');
             $table->string('password');
             $table->softDeletes();
