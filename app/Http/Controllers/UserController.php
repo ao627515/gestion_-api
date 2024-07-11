@@ -16,7 +16,18 @@ class UserController extends Controller
      */
     public function index()
     {
-        return response()->json(User::all(), 200);
+        try {
+            $users = User::orderBy('created_at', 'desc')->get();
+            return response()->json([
+                'data' => UserResource::collection($users),
+                'message' => 'Users retrieved successfully'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Erreur lors de la création de l\'utilisateur. Veuillez réessayer plus tard.',
+                'error' => $th->getMessage()
+            ]);
+        }
     }
 
     /**
@@ -38,7 +49,10 @@ class UserController extends Controller
         // Générer un mot de passe si non fourni
         $validated['password'] = isset($validated['password']) ? Hash::make($validated['password']) : Hash::make('password');
 
-        $validated['registration_number'] = uniqid();
+        // Générer un identifiant unique numérique
+        do {
+            $validated['registration_number'] = now()->year . random_int(1000, 9999);
+        } while (User::where('registration_number', $validated['registration_number'])->exists());
 
         // Créer l'utilisateur avec les données validées
         try {
