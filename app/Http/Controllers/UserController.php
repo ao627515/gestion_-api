@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use Exception;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class UserController extends Controller
 {
@@ -76,17 +81,25 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
-        if (!$user) {
+        try {
+            $user = User::findOrFail($id);
             return response()->json([
-                'message' => 'Utilisateur non trouvé'
-            ], 404);
+                'message' => 'Utilisateur récupéré avec succès.',
+                'data' => new UserResource($user)
+            ], 200); // 200 OK
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Utilisateur non trouvé.',
+                'error' => $e->getMessage()
+            ], 404); // 404 Not Found
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la récupération de l\'utilisateur. Veuillez réessayer plus tard.',
+                'error' => $e->getMessage()
+            ], 500); // 500 Internal Server Error
         }
-        return response()->json([
-            'message' => 'Utilisateur trouve.',
-            'data' => new UserResource($user)
-        ], 200);
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -99,40 +112,52 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, $id)
     {
-        $user = User::find($id);
-
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'lastname' => 'required|string',
-            'firstname' => 'required|string',
-            'role' => 'required|in:caissier,gerant,admin',
-            'phone' => 'required|string|unique:users,phone,' . $user->id,
-            'password' => 'required|string|min:8',
-        ]);
-
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+        try {
+            $user = User::findOrFail($id);
+            $user->update($request->validated());
+            return response()->json([
+                'message' => 'Utilisateur mis à jour avec succès.',
+                'data' => new UserResource($user)
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Utilisateur non trouvé.',
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la mise à jour de l\'utilisateur. Veuillez réessayer plus tard.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $user->update($validated);
-
-        return response()->json([
-            'message' => 'Utilisateur mis à jour avec succès',
-            'user' => $user
-        ], 200);
     }
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy($id)
     {
-        $user->delete();
+        try {
+            // Trouver l'utilisateur ou lever une exception
+            $user = User::findOrFail($id);
 
-        return response()->json([
-            'message' => 'Utilisateur supprimé avec succès'
-        ], 200);
+            // Supprimer l'utilisateur
+            $user->delete();
+
+            return response()->json([
+                'message' => 'Utilisateur supprimé avec succès.'
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Utilisateur non trouvé.',
+                'error' => $e->getMessage()
+            ], 404);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de la suppression de l\'utilisateur. Veuillez réessayer plus tard.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
