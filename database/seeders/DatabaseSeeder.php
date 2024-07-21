@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             UserRoleSeeder::class,
             UserSeeder::class,
             HallSeeder::class,
-            TicketSeeder::class
+            TicketSeeder::class,
+            AccessRightSeeder::class
         ]);
     }
 }
