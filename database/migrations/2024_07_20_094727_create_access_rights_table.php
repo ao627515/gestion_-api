@@ -15,8 +15,13 @@ return new class extends Migration
             $table->id();
             $table->string('libelle');
             $table->text('description')->nullable();
+            $table->foreignId('access_right_id')
+            ->nullable()
+            ->constrained('access_rights')
+            ->cascadeOnDelete()
+            ->cascadeOnUpdate();
             $table->foreignId('user_id')
-            ->constrained()
+            ->constrained('users')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->softDeletes();
