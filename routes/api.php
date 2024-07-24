@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccessRightController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -20,7 +21,7 @@ Route::prefix('v1')->group(function () {
         Route::get('tickets/visitor_tickets', [TicketController::class, 'visitorTickets']);
         Route::get('tickets/consumer_tickets', [TicketController::class, 'consumerTickets']);
         Route::resource('user_roles', UserRoleController::class);
-
+        Route::resource('access-rights', AccessRightController::class);
     });
     Route::resource('users', UserController::class);
 
@@ -32,6 +33,7 @@ Route::prefix('v1')->group(function () {
         });
     });
 });
+
 Route::fallback(function () {
     return response()->json([
         'message' => 'Page not found'

@@ -2,24 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AccessRightResource;
 use Exception;
 use App\Models\AccessRight;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreAccessRightRequest;
 use App\Http\Requests\UpdateAccessRightRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class AccessRightController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $accessRights = AccessRight::orderBy('created_at', 'desc')->get();
+
+            // recuperation des relations a charger
+            $relations = $request->input('relations', []);
+
+            $accessRights = AccessRight::with($relations)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
             return response()->json([
-                'data' => $accessRights,
+                'data' =>  AccessRightResource::collection($accessRights),
                 'message' => 'Droits d\'accès récupérés avec succès.'
             ]);
         } catch (\Throwable $th) {
@@ -45,10 +54,11 @@ class AccessRightController extends Controller
         try {
             // Créer une nouvelle instance d'AccessRight avec les données validées
             $accessRight = AccessRight::create($validatedData);
-
+            $relations = $request->input('relations', []);
+            $accessRight->load($relations);
             return response()->json([
                 'message' => 'Droit d\'accès créé avec succès.',
-                'data' => $accessRight
+                'data' => new AccessRightResource($accessRight)
             ], 201); // 201 Created
         } catch (Exception $e) {
             // Gestion des erreurs de création

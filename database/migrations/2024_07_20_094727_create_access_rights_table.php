@@ -25,6 +25,11 @@ return new class extends Migration
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->softDeletes();
+            $table->foreignId('delete_by')
+            ->nullable()
+            ->constrained('users')
+            ->cascadeOnDelete()
+            ->cascadeOnUpdate();
             $table->timestamps();
         });
     }

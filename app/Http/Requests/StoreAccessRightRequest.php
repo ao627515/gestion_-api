@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Validation\ValidationException;
 
 class StoreAccessRightRequest extends FormRequest
 {
@@ -24,37 +26,38 @@ class StoreAccessRightRequest extends FormRequest
         return [
             'libelle' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'access_right_id' => 'nullable|exists:access_rights,id'
         ];
     }
 
     /**
-     * Gérer les erreurs de validation.
+     * Handle failed validation.
      *
-     * @param  \Illuminate\Contracts\Validation\Validator  $validator
+     * @param  Validator  $validator
      * @return void
      */
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    protected function failedValidation(Validator $validator)
     {
         $response = response()->json([
             'errors' => $validator->errors()
         ], 422);
 
-        throw new \Illuminate\Validation\ValidationException($validator, $response);
+        throw new ValidationException($validator, $response);
     }
 
     /**
-     * Messages d'erreur de validation personnalisés.
+     * Custom validation error messages.
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return [
             'libelle.required' => 'Le champ libellé est obligatoire.',
             'libelle.string' => 'Le champ libellé doit être une chaîne de caractères.',
             'libelle.max' => 'Le champ libellé ne peut pas dépasser 255 caractères.',
-            'description.required' => 'Le champ description est obligatoire.',
-            'description.string' => 'Le champ description doit être une chaîne de caractères.'
+            'description.string' => 'Le champ description doit être une chaîne de caractères.',
+            'access_right_id.exists' => 'Le champ access_right_id doit correspondre à un ID existant dans la table access_rights.'
         ];
     }
 }
