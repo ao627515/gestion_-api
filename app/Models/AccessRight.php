@@ -17,15 +17,23 @@ class AccessRight extends Model
         'deleted_at'
     ];
 
-    public function accessRights(){
+    public function accessRights()
+    {
         return $this->hasMany(AccessRight::class, 'access_right_id');
     }
 
-    public function createdBy(){
+    public function createdBy()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function deletedBy(){
+    public function deletedBy()
+    {
         return $this->belongsTo(User::class, 'delete_by');
+    }
+
+    static public function accessRightExists(int $id)
+    {
+        return self::where('id', $id)->exists();
     }
 }

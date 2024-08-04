@@ -24,8 +24,8 @@ class AccessRightController extends Controller
             $relations = $request->input('relations', []);
 
             $accessRights = AccessRight::with($relations)
-            ->orderBy('created_at', 'desc')
-            ->get();
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             return response()->json([
                 'data' =>  AccessRightResource::collection($accessRights),

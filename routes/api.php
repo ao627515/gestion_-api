@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function () {
         Route::post('tickets/consumer', [TicketController::class, 'consumerTicketsStore']);
         Route::get('tickets/visitor_tickets', [TicketController::class, 'visitorTickets']);
         Route::get('tickets/consumer_tickets', [TicketController::class, 'consumerTickets']);
+        Route::get('user_roles/{user_role}/attribute_access_rights', [UserRoleController::class, 'attributeAccessRights']);
         Route::resource('user_roles', UserRoleController::class);
         Route::resource('access-rights', AccessRightController::class);
     });
