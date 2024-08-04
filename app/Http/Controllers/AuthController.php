@@ -34,6 +34,12 @@ class AuthController extends Controller
         ], 401);
     }
 
+    public function create()
+    {
+        return response()->json([
+            'message' => 'connecte toi'
+        ]);
+    }
 
 
     public function logout(Request $request)

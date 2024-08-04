@@ -35,6 +35,9 @@ Route::prefix('v1')->group(function () {
     });
 });
 
+Route::get('login', [AuthController::class, 'create'])->name('login');
+
+
 Route::fallback(function () {
     return response()->json([
         'message' => 'Page not found'
