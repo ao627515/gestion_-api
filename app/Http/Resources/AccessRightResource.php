@@ -18,11 +18,14 @@ class AccessRightResource extends JsonResource
             'id' => $this->id,
             'libelle' => $this->libelle,
             'description' => $this->description, // Correction ici
-            'accessRights' => $this->whenLoaded('accessRights'),
+            'accessRights' => $this->when(
+                $this->relationLoaded('accessRights'),
+                AccessRightResource::collection($this->accessRights)
+            ),
             'createdBy' => $this->whenLoaded('createdBy'),
             'deletedBy' => $this->whenLoaded('deletedBy'),
             'created_at' => $this->created_at,
-            'updated_at'=> $this->updated_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }
